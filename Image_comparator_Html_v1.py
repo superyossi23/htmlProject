@@ -56,13 +56,23 @@ base = """
     <title>""" + tab_name + """</title>
     <style>
       body {
-        background-color: #000000;
+        background-color: #FFFFFF;
         font-size: 18px;
-        color: #FFFFFF;
+        color: #000000;
+      }
+      .index{
+        background-color: #000000;
+        font-size: 200%;
+      }
+      .columns{
+        background-color: #000000;
+        font-size: 100%;
       }
     </style>
   </head>
   <body>
+    <p>""" + img_dir + """.html
+    </p>
     <table border="0">
     </table>
   </body>
@@ -99,9 +109,9 @@ for i in range(len(filelist)):
     if i == 0:
         wrapper = """
         <tr>
-          <td><font size="50"><b>""" + filelist[i].split('_')[0] + """</b></font>
+          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0] + """</b></font>
           </td>
-          <td>
+          <td class="columns"><font color="#FFFFFF">
             <!Write comments below>  <br>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
@@ -109,7 +119,7 @@ for i in range(len(filelist)):
     # Add a column
     elif filelist[i].split('_')[0] == filelist[i - 1].split('_')[0]:
         wrapper = """
-          <td>
+          <td class="columns"><font color="#FFFFFF">
             <!Write comments below>  <br>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
@@ -119,9 +129,9 @@ for i in range(len(filelist)):
         wrapper = """
         </tr>
         <tr>
-          <td><font size="50"><b>""" + filelist[i].split('_')[0] + """</b></font>
+          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0] + """</b></font>
           </td>
-          <td>
+          <td class="columns"><font color="#FFFFFF">
             <!Write comments below>  <br>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
