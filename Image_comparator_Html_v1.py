@@ -1,16 +1,18 @@
 """
-Display all the images in a directory. Rows are sorted by filelist.split('_')[0].
-Place "css/styleV1.css" on the same directory as the html.
+Display all the images in a directory (also subdirectories). Rows are sorted by filelist.split('_')[0].
 
 2022/02/02 Feature: <bgcolor> and <font size> and <font color> added.
 2022/02/11 Format reorganized (Paragraph added). natsort added.
 2022/10/16 File name will be oscilloscope color.
 2023/06/30 v1 released.
+2023/08/26 bg-color changed. black->white. (Table background color remains black)
+2023/09/02 Show images also in subdirectories.
 
 """
 
 from webbrowser import open_new_tab
 import os
+from fnmatch import fnmatch
 import sys
 from natsort import natsorted
 # from htmlModule import *
@@ -20,28 +22,26 @@ from natsort import natsorted
 # SETTINGS #
 
 wd = r'C:\Users\A\Desktop\pythonProject\stockProject\DATA\png'
-col_num = 1
-format = '.png'
+format = '*.png'
 
-filelist = os.listdir(wd)  # Work file directory
-filelist = list(filter(lambda x: x.endswith(format), filelist))  # Work file
 img_dir = wd.split('\\')[-1]
 out_filename = img_dir + '\\' + img_dir + '.html'  # Output file name
 tab_name = img_dir  # Tab name for html file
 
 # --------------------------------------------------------------
-# SORTING #
 
-# filename = 'IMG_'  # (SORTING)
-# print('Execute SORTING!!')
-# filedict = sort_filelist(filelist, filename)
-# print('\nfiledict:\n', filedict)
-# filelist = sorted(filedict.values(), key=lambda x:x[0])
+# Make a filelist
+filelist = []
+for path, subdirs, files in os.walk(wd):
+    print('Adding files in %s...' % (path))
+    for name in files:
+        if fnmatch(name, format):
+            print(os.path.join(path, name))
+            if path.split(wd.split('\\')[-1]+'\\')[-1] == path:
+                filelist.append(name)  # for root dir
+            else:
+                filelist.append(path.split(wd.split('\\')[-1]+'\\')[-1] + '\\' + name)  # for sub dir
 
-# natsort
-filelist = natsorted(filelist)
-# --------------------------------------------------------------
-print('\nfilelist:\n', filelist)
 
 # How to read html base file
 # temp_wrapper = 'temp_wrapper.html'
@@ -57,16 +57,16 @@ base = """
     <style>
       body {
         background-color: #FFFFFF;
-        font-size: 18px;
+        font-size: 20px;
         color: #000000;
       }
       .index{
         background-color: #000000;
-        font-size: 200%;
+        font-size: 100%;
       }
       .columns{
         background-color: #000000;
-        font-size: 100%;
+        font-size: 60%;
       }
     </style>
   </head>
@@ -109,7 +109,7 @@ for i in range(len(filelist)):
     if i == 0:
         wrapper = """
         <tr>
-          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0] + """</b></font>
+          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0].replace('\\', '<br>') + """</b></font>
           </td>
           <td class="columns"><font color="#FFFFFF">
             <!Write comments below>  <br>
@@ -129,7 +129,7 @@ for i in range(len(filelist)):
         wrapper = """
         </tr>
         <tr>
-          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0] + """</b></font>
+          <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0].replace('\\', '<br>') + """</b></font>
           </td>
           <td class="columns"><font color="#FFFFFF">
             <!Write comments below>  <br>
@@ -147,7 +147,7 @@ base = base[:index] + body + base[index:]
 
 
 # OUTPUT
-output = '/'.join(wd.split('\\')[:-1]) + '/' + out_filename
+output = '\\'.join(wd.split('\\')[:-1]) + '\\' + out_filename
 f = open(output, 'w')
 f.write(base)
 f.close()
