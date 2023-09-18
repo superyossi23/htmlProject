@@ -7,7 +7,7 @@ Display all the images in a directory (also subdirectories). Rows are sorted by 
 2023/06/30 v1 released.
 2023/08/26 bg-color changed. black->white. (Table background color remains black)
 2023/09/02 Show images also in subdirectories.
-
+2023/09/16 Modified filename's font color.
 """
 
 from webbrowser import open_new_tab
@@ -24,13 +24,28 @@ from natsort import natsorted
 wd = r'C:\Users\A\Desktop\pythonProject\stockProject\DATA\png'
 format = '*.png'
 
+# --------------------------------------------------------------
+# for Pyinstaller #
+
+if getattr(sys, 'frozen', False):
+    # Obtain file path from the dif of .exe
+    wd = os.path.dirname(sys.executable)
+# else:
+#     # Obtain file path from the dif of .py
+#     wd = os.path.dirname(os.path.abspath(__file__))
+
+# --------------------------------------------------------------
+# PROPERTIES #
+
 img_dir = wd.split('\\')[-1]
 out_filename = img_dir + '\\' + img_dir + '.html'  # Output file name
 tab_name = img_dir  # Tab name for html file
 
 # --------------------------------------------------------------
 
-# Make a filelist
+# --------------------------------------------------------------
+
+# Create a filelist
 filelist = []
 for path, subdirs, files in os.walk(wd):
     print('Adding files in %s...' % (path))
@@ -43,10 +58,6 @@ for path, subdirs, files in os.walk(wd):
                 filelist.append(path.split(wd.split('\\')[-1]+'\\')[-1] + '\\' + name)  # for sub dir
 
 
-# How to read html base file
-# temp_wrapper = 'temp_wrapper.html'
-# htmlFile = open(temp_wrapper, 'r', encoding='UTF-8')
-# base = htmlFile.read()
 base = """
 <!DOCTYPE html>
 <html>
@@ -60,9 +71,13 @@ base = """
         font-size: 20px;
         color: #000000;
       }
+      img{
+      height: 400px;
+      }
+      
       .index{
         background-color: #000000;
-        font-size: 100%;
+        font-size: 80%;
       }
       .columns{
         background-color: #000000;
@@ -88,22 +103,34 @@ body = ""
 for i in range(len(filelist)):
 
     # Oscilloscope color for a file name
-    f_spl = filelist[i].split('_')
+
     font_cnt = ''
-    for _ in range(len(f_spl)):
-        if   'CH1' in f_spl[_] or 'ch1' in f_spl[_]:
-            f_spl[_] = "<font color='ffff00'>" + f_spl[_]  # Yellow
-        elif 'CH2' in f_spl[_] or 'ch2' in f_spl[_]:
-            f_spl[_] = "<font color='ff00ff'>" + f_spl[_]  # Magenta
-        elif 'CH3' in f_spl[_] or 'ch3' in f_spl[_]:
-            f_spl[_] = "<font color='0000ff'>" + f_spl[_]  # Blue
-        elif 'CH4' in f_spl[_] or 'ch4' in f_spl[_]:
-            f_spl[_] = "<font color='00ff00'>" + f_spl[_]  # Green
-        else:
-            f_spl[_] = "<font color='ffffff'>" + f_spl[_]  # White
-        f_colored = '_'.join(f_spl)
+
+    font_cnt += '</font>'
+    if '.png' in filelist[i]:
+        new_name = "<font color='#ffffff'>" + filelist[i].split('.png')[0]  # White
+    if '.jpg' in filelist[i]:
+        new_name = "<font color='#ffffff'>" + filelist[i].split('.jpg')[0]  # White
+
+    if   '_CH1-' in new_name or '_ch1-' in new_name:
+        new_name = new_name.replace('_ch1-', "<font color='#ffffff'>" + '_ch1-' + "<font color='#ffff00'>")  # Yellow
         font_cnt += '</font>'
-    f_colored = f_colored + font_cnt
+    if '_CH2-' in new_name or '_ch2-' in new_name:
+        new_name = new_name.replace('_ch2-', "<font color='#ffffff'>" + '_ch2-' + "<font color='#ff00ff'>")  # Magenta
+        font_cnt += '</font>'
+    if '_CH3-' in new_name or '_ch3-' in new_name:
+        new_name = new_name.replace('_ch3-', "<font color='#ffffff'>" + '_ch3-' + "<font color='#0000ff'>")  # Blue
+        font_cnt += '</font>'
+    if '_CH4-' in new_name or '_ch4-' in new_name:
+        new_name = new_name.replace('_ch4-', "<font color='#ffffff'>" + '_ch4-' + "<font color='#00ff00'>")  # Green
+        font_cnt += '</font>'
+
+    font_cnt += '</font>'
+    if '.png' in filelist[i]:
+        f_colored = new_name + "<font color='#ffffff'>.png" + font_cnt
+    if '.jpg' in filelist[i]:
+        f_colored = new_name + "<font color='#ffffff'>.jpg" + font_cnt
+
 
     # i = 0
     if i == 0:
@@ -111,16 +138,16 @@ for i in range(len(filelist)):
         <tr>
           <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0].replace('\\', '<br>') + """</b></font>
           </td>
-          <td class="columns"><font color="#FFFFFF">
-            <!Write comments below>  <br>
+          <td class="columns">
+            <font color="#FFFFFF"><!Remarks> - <br></font>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
           </td>"""
     # Add a column
     elif filelist[i].split('_')[0] == filelist[i - 1].split('_')[0]:
         wrapper = """
-          <td class="columns"><font color="#FFFFFF">
-            <!Write comments below>  <br>
+          <td class="columns">
+            <font color="#FFFFFF"><!Remarks> - <br></font>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
           </td>"""
@@ -132,7 +159,7 @@ for i in range(len(filelist)):
           <td class="index"><font color="#FFFFFF"><b>""" + filelist[i].split('_')[0].replace('\\', '<br>') + """</b></font>
           </td>
           <td class="columns"><font color="#FFFFFF">
-            <!Write comments below>  <br>
+            <!Remarks> - <br></font>
             """ + f_colored + """<br>
             <img src=""" + filelist[i] + """>
           </td>"""
